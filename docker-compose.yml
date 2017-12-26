@@ -1,0 +1,44 @@
+version: "3.2"
+
+services:
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+  mysql:
+    build: ./mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 07010020
+      MYSQL_USER: user1
+      MYSQL_PASSWORD: password1
+      MYSQL_DATABASE: dpDoctor
+  laravel1:
+    build: ./laravel1
+    volumes:
+      - ./src:/usr/laravel
+    ports:
+      - 8001:8001
+    depends_on:
+      - redis
+      - mysql
+  laravel2:
+    build: ./laravel2
+    volumes:
+      - ./src:/usr/laravel
+    ports:
+      - 8002:8002
+    depends_on:
+      - redis
+      - mysql
+  nginx:
+    build: ./nginx
+    ports:
+      - 8080:8080
+    depends_on:
+      - laravel1
+      - laravel2
